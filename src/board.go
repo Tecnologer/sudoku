@@ -85,9 +85,10 @@ func initGame(level ComplexityLevel) *board {
 }
 
 func newBoard() board {
+	empty := [9]int{0, 0, 0, 0, 0, 0, 0, 0, 0}
 	b := [9][9]int{}
 	for x := 0; x < 9; x++ {
-		b[x] = [9]int{}
+		b[x] = empty
 	}
 
 	return board(b)
