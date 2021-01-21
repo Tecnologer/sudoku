@@ -1,11 +1,18 @@
 package sudoku
 
+import "strings"
+
 //ComplexityLevel enum of complex game
 type ComplexityLevel byte
 
 var (
 	complexityLevelToString = [...]string{"Easy", "Basic", "Medium", "Hard", "Master", "Test"}
 )
+
+//GetComplexities returns the list of difficulties
+func GetComplexities() [6]string {
+	return complexityLevelToString
+}
 
 func (l ComplexityLevel) String() string {
 	return complexityLevelToString[l]
@@ -38,7 +45,7 @@ const (
 //StringToComplexity parses string to ComplexityLevel, Default: EasyLevel
 func StringToComplexity(c string) ComplexityLevel {
 	for i, v := range complexityLevelToString {
-		if v == c {
+		if strings.ToLower(v) == strings.ToLower(c) {
 			return ComplexityLevel(i)
 		}
 	}
