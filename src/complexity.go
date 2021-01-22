@@ -6,11 +6,11 @@ import "strings"
 type ComplexityLevel byte
 
 var (
-	complexityLevelToString = [...]string{"Easy", "Basic", "Medium", "Hard", "Master", "Test"}
+	complexityLevelToString = [...]string{"Invalid", "Easy", "Basic", "Medium", "Hard", "Master", "Test"}
 )
 
 //GetComplexities returns the list of difficulties
-func GetComplexities() [6]string {
+func GetComplexities() [7]string {
 	return complexityLevelToString
 }
 
@@ -34,7 +34,8 @@ type square struct {
 }
 
 const (
-	EasyLevel ComplexityLevel = iota
+	InvalidLevel ComplexityLevel = iota
+	EasyLevel
 	BasicLevel
 	MediumLevel
 	HardLevel
@@ -50,7 +51,7 @@ func StringToComplexity(c string) ComplexityLevel {
 		}
 	}
 
-	return EasyLevel
+	return InvalidLevel
 }
 
 func buildComplexity(level ComplexityLevel) *complexity {
