@@ -1,23 +1,35 @@
 package sudoku
 
 import (
+	"sync"
 	"time"
 )
 
 //Game struct
 type Game struct {
-	Board      *board
-	Level      ComplexityLevel
-	StartTime  time.Time
-	complexity *complexity
+	Board       *board
+	Level       ComplexityLevel
+	StartTime   time.Time
+	complexity  *complexity
+	LockedCoord []*Coordinate
+	mutex       sync.Mutex
 }
 
 //NewGame creates new game with the specific complexity
 func NewGame(level ComplexityLevel) *Game {
-	return &Game{
+	g := &Game{
 		Board: initGame(level),
 		Level: level,
 	}
+
+	b := *g.Board
+	for !g.CanBeSolved() {
+		g.Board = initGame(level)
+		b = *g.Board
+	}
+	g.Board = &b
+
+	return g
 }
 
 func (g *Game) isSolved() bool {
@@ -52,6 +64,7 @@ func (g *Game) Solve() {
 
 		}
 	}
+
 }
 
 //Validate validates if the solutions is correct
@@ -61,13 +74,13 @@ func (g *Game) Validate() *ValidationErrors {
 		for y := 0; y < 9; y++ {
 			switch {
 			case g.IsEmpty(x, y):
-				errs.appendError(emptyError, ErrorCoordinate{X: x, Y: y})
+				errs.appendError(emptyError, NewErrorCoordinate(x, y))
 			case g.IsXValid(x, y, g.Get(x, y)):
-				errs.appendError(invalidRow, ErrorCoordinate{X: x, Y: y})
+				errs.appendError(invalidRow, NewErrorCoordinate(x, y))
 			case g.IsYValid(x, y, g.Get(x, y)):
-				errs.appendError(invalidColumn, ErrorCoordinate{X: x, Y: y})
+				errs.appendError(invalidColumn, NewErrorCoordinate(x, y))
 			case g.IsSquareValid(x, y, g.Get(x, y)):
-				errs.appendError(invalidSquare, ErrorCoordinate{X: x, Y: y})
+				errs.appendError(invalidSquare, NewErrorCoordinate(x, y))
 			}
 		}
 	}
@@ -108,4 +121,43 @@ func (g *Game) IsValid(x, y, n int) bool {
 //IsEmpty validate if the coordinate has value
 func (g *Game) IsEmpty(x, y int) bool {
 	return g.Board.isEmpty(x, y)
+}
+
+//IsCoordinateLockedXY returns if the coordinate x,y is locked
+func (g *Game) IsCoordinateLockedXY(x, y int) bool {
+	return g.IsCoordinateLocked(NewCoordinate(x, y))
+}
+
+//IsCoordinateLocked returns if the coordinate x,y is locked
+func (g *Game) IsCoordinateLocked(c *Coordinate) bool {
+	for _, c := range g.LockedCoord {
+		if c.Equals(c) {
+			return true
+		}
+	}
+
+	return false
+}
+
+//LockCoordinateXY add coordinate to the lock list
+func (g *Game) LockCoordinateXY(x, y int) {
+	g.LockCoordinate(NewCoordinate(x, y))
+}
+
+//LockCoordinate add coordinate to the lock list
+func (g *Game) LockCoordinate(c *Coordinate) {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
+	if g.IsCoordinateLocked(c) {
+		return
+	}
+
+	g.LockedCoord = append(g.LockedCoord, c)
+}
+
+func (g *Game) CanBeSolved() bool {
+	g.Solve()
+
+	return g.isSolved()
 }
