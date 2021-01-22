@@ -86,7 +86,17 @@ func initGame(level ComplexityLevel) *board {
 
 func newBoard() board {
 	empty := [9]int{0, 0, 0, 0, 0, 0, 0, 0, 0}
-	b := [9][9]int{}
+	b := [9][9]int{
+		// {7, 0, 0, 2, 3, 1, 0, 8, 9},
+		// {0, 0, 0, 0, 6, 0, 4, 0, 0},
+		// {0, 0, 0, 0, 0, 0, 0, 0, 0},
+		// {6, 5, 7, 0, 9, 8, 3, 2, 1},
+		// {0, 0, 0, 0, 0, 0, 0, 0, 0},
+		// {0, 0, 0, 0, 0, 0, 0, 0, 0},
+		// {4, 3, 9, 1, 8, 2, 0, 6, 0},
+		// {0, 0, 0, 0, 0, 0, 5, 1, 0},
+		// {0, 0, 0, 0, 0, 0, 0, 0, 0},
+	}
 	for x := 0; x < 9; x++ {
 		b[x] = empty
 	}
@@ -98,6 +108,9 @@ func newBoard() board {
 
 //isEmpty returns if the coordinate has value
 func (b *board) isEmpty(x, y int) bool {
+	if x > 8 || y > 8 {
+		return false
+	}
 	return b[x][y] == 0
 }
 
