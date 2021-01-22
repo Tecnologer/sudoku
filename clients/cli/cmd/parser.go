@@ -4,28 +4,41 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
-func CallCmd() {
-	cmd := readInput("Type your next action (help for help): ")
+var splitReg *regexp.Regexp
+
+func init() {
+	splitReg, _ = regexp.Compile(`\s`)
+}
+func CallCmd(cmd string, args ...string) {
+	if cmd == "" {
+		cmd, args = readInput("Type your next action (help for help): ")
+	}
 
 	if action, ok := commandsMap[cmd]; ok {
-		action()
+		action(args...)
 		return
 	}
 
 	fmt.Println("Invalid option. Please, try again.")
 }
 
-func readInput(msg string) string {
+func readInput(msg string) (string, []string) {
 	for {
 		fmt.Print(msg)
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 
 		if err == nil {
-			return strings.ReplaceAll(strings.Trim(input, ""), "\n", "")
+			input := strings.ReplaceAll(strings.Trim(input, " "), "\n", "")
+			cmd := strings.SplitN(input, " ", 2)[0]
+			input = strings.Trim(input[len(cmd):], " ")
+
+			args := strings.Split(input, ",")
+			return cmd, args
 		}
 
 		fmt.Println("incorrect input. try again.")

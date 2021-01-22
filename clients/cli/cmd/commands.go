@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	commandsMap map[string]func()
+	commandsMap map[string]func(...string)
 	commands    []*command
 )
 
@@ -27,7 +27,7 @@ func init() {
 			cmd:    "exit",
 			action: exit,
 			about:  "Closes the game",
-			alias:  []string{"close"},
+			alias:  []string{"close", "q"},
 		},
 		{
 			cmd:    "new",
@@ -45,11 +45,23 @@ func init() {
 			cmd:    "display",
 			action: printGame,
 			about:  "Sets the value in the coordinate",
-			alias:  []string{"print", "show"},
+			alias:  []string{"print", "show", "p"},
+		},
+		{
+			cmd:    "validate",
+			action: validateGame,
+			about:  "Validates if the game is correct",
+			alias:  []string{"v"},
+		},
+		{
+			cmd:    "solve",
+			action: solveGame,
+			about:  "Solves the current game",
+			alias:  []string{},
 		},
 	}
 
-	commandsMap = make(map[string]func())
+	commandsMap = make(map[string]func(...string))
 	for _, cmd := range commands {
 		commandsMap[cmd.cmd] = cmd.action
 		for _, alias := range cmd.alias {
@@ -62,7 +74,7 @@ func init() {
 	}
 }
 
-func printHelp() {
+func printHelp(args ...string) {
 	fmt.Println("\nAvailable commands: ")
 	for _, cmd := range commands {
 		fmt.Println("\t", cmd)
@@ -70,7 +82,7 @@ func printHelp() {
 	fmt.Println()
 }
 
-func exit() {
+func exit(args ...string) {
 	i := "y"
 	// i := readInput("Are you sure? (Y/n): ")
 
@@ -79,30 +91,47 @@ func exit() {
 	}
 }
 
-func newGame() {
-	fmt.Println("Difficulties availables: ")
-	for _, c := range sudoku.GetComplexities() {
-		fmt.Printf("\t- %s\n", c)
+func newGame(args ...string) {
+	var levelStr string
+	if len(args) == 0 {
+		fmt.Println("Difficulties availables: ")
+		for _, c := range sudoku.GetComplexities() {
+			fmt.Printf("\t- %s\n", c)
+		}
+
+		fmt.Println()
+		levelStr, args = readInput("Choose you difficulty: ")
+	} else {
+		levelStr = strings.Trim(args[0], "")
 	}
 
-	fmt.Println()
-	levelStr := readInput("Choose you difficulty: ")
-
 	level := sudoku.StringToComplexity(levelStr)
+	if level == sudoku.InvalidLevel {
+		fmt.Println("Invalid difficulty selected")
+		newGame()
+		return
+	}
 
 	game.Current = sudoku.NewGame(level)
 
 	fmt.Printf("new %s game started\n", level)
+	CallCmd("print", args...)
 }
 
-func setValue() {
+func setValue(args ...string) {
+	var inputs []string
 	input := ""
 	for input != "cancel" {
-		input = readInput("Type the coordinate and the value separate by commas (x,y,z): ")
-		inputs := strings.Split(input, ",")
-		if len(inputs) != 3 {
-			fmt.Println("Invalid data. Please, try again")
-			continue
+
+		if len(args) != 3 {
+			input, args = readInput("Type the coordinate and the value separate by commas (x,y,z) [\"cancel\" to try other command]: ")
+			inputs = strings.Split(input, ",")
+			if len(inputs) != 3 {
+				fmt.Println("Invalid data. Please, try again")
+				continue
+			}
+		} else {
+			inputs = args
 		}
 
 		row, err := strconv.Atoi(inputs[0])
@@ -117,22 +146,34 @@ func setValue() {
 			continue
 		}
 
-		val, err := strconv.Atoi(inputs[1])
+		val, err := strconv.Atoi(inputs[2])
 		if err != nil || val > 9 || val < 1 {
 			fmt.Println("The value is invalid. Should be a integer between 1 and 9")
 			continue
 		}
 
-		game.Current.Set(row-1, col-1, val)
+		x, y := row-1, col-1
+		if game.Current.IsCoordinateLockedXY(x, y) {
+			fmt.Println("The coordinate is locked, please select other")
+			setValue()
+			return
+		}
+
+		game.Current.Set(x, y, val)
+		break
 	}
 
 }
 
-func printGame() {
+func printGame(args ...string) {
+	if game.Current == nil {
+		fmt.Println("there is not started game")
+		return
+	}
 	for x := 0; x < 9; x++ {
 		fmt.Print("|")
 		for y := 0; y < 9; y++ {
-			if game.Current.IsEmpty(x, y) {
+			if !game.Current.IsEmpty(x, y) {
 				fmt.Print(game.Current.Get(x, y))
 			} else {
 				fmt.Print("-")
@@ -149,4 +190,32 @@ func printGame() {
 			fmt.Println()
 		}
 	}
+}
+
+func validateGame(args ...string) {
+	errs := game.Current.Validate()
+
+	if errs.Count == 0 {
+		fmt.Println("everything is ok")
+		return
+	}
+
+	p := ""
+	for t, es := range errs.Errs {
+		if len(es) > 1 {
+			p = "s"
+		} else {
+			p = ""
+		}
+
+		fmt.Printf("Error in the following %s%s:\n", t, p)
+		for _, e := range es {
+			fmt.Printf("\tX: %d, Y: %d\n", e.X+1, e.Y+1)
+		}
+	}
+}
+
+func solveGame(args ...string) {
+	game.Current.Solve()
+	CallCmd("p")
 }

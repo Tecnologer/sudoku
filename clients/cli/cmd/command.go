@@ -1,14 +1,21 @@
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type command struct {
 	cmd    string
-	action func()
+	action func(...string)
 	about  string
 	alias  []string
 }
 
 func (c *command) String() string {
-	return fmt.Sprintf("- %s: %s\n\t* Alias: %v", c.cmd, c.about, c.alias)
+	alias := ""
+	if len(c.alias) > 0 {
+		alias = "\n\t   * Alias: " + strings.Join(c.alias, ", ")
+	}
+	return fmt.Sprintf("- %s: %s%s", c.cmd, c.about, alias)
 }
