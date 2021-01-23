@@ -8,6 +8,10 @@ func initGame(level ComplexityLevel) *board {
 	c := buildComplexity(level)
 	b := newBoard()
 
+	if level == EmptyLevel {
+		return &b
+	}
+
 	var wg sync.WaitGroup
 	wg.Add(9)
 
