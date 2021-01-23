@@ -6,11 +6,11 @@ import "strings"
 type ComplexityLevel byte
 
 var (
-	complexityLevelToString = [...]string{"Invalid", "Easy", "Basic", "Medium", "Hard", "Master", "Test"}
+	complexityLevelToString = [...]string{"Invalid", "Easy", "Basic", "Medium", "Hard", "Master", "Empty", "Test"}
 )
 
 //GetComplexities returns the list of difficulties
-func GetComplexities() [7]string {
+func GetComplexities() [8]string {
 	return complexityLevelToString
 }
 
@@ -40,6 +40,7 @@ const (
 	MediumLevel
 	HardLevel
 	MasterLevel
+	EmptyLevel
 	TestLevel
 )
 
