@@ -28,7 +28,10 @@ func CallCmd(cmd string, args ...string) {
 
 func readInput(msg string) (string, []string) {
 	for {
-		fmt.Print(msg)
+		if len(msg) > 0 {
+			fmt.Println(msg)
+		}
+		fmt.Print(">> ")
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 
