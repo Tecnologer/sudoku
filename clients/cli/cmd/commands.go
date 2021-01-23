@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/tecnologer/sudoku/clients/cli/game"
+	"github.com/tecnologer/sudoku/clients/cli/utils"
 	sudoku "github.com/tecnologer/sudoku/src"
 )
 
@@ -59,6 +60,19 @@ func init() {
 			about:  "Solves the current game",
 			alias:  []string{},
 		},
+		{
+			cmd:    "set-row",
+			action: setRow,
+			about: `Sets the values to the specified row.
+		* Single line: set-row <row_number>,<data separated by comma>
+			+ Example: row number 3
+				>> set-row 3,0,0,1,0,3,0,0,0,6
+		* Different line: <row_number> <data separated by comma>
+			+ Example: row number 3
+				>> set-row 
+				>> 3 0,0,1,0,3,0,0,0,6`,
+			alias: []string{"row"},
+		},
 	}
 
 	commandsMap = make(map[string]func(...string))
@@ -75,9 +89,20 @@ func init() {
 }
 
 func printHelp(args ...string) {
-	fmt.Println("\nAvailable commands: ")
-	for _, cmd := range commands {
-		fmt.Println("\t", cmd)
+	if len(args) == 0 || (len(args) == 1 && args[0] == "") {
+		fmt.Println("\nAvailable commands: ")
+		for _, cmd := range commands {
+			fmt.Println("\t", cmd)
+		}
+	} else {
+		fmt.Printf("\nHelp for: %v\n", args)
+		for _, arg := range args {
+			for _, cmd := range commands {
+				if cmd.isCommand(arg) {
+					fmt.Println("\t", cmd)
+				}
+			}
+		}
 	}
 	fmt.Println()
 }
@@ -121,10 +146,14 @@ func newGame(args ...string) {
 func setValue(args ...string) {
 	var inputs []string
 	input := ""
-	for input != "cancel" {
+	for {
 
 		if len(args) != 3 {
 			input, args = readInput("Type the coordinate and the value separate by commas (x,y,z) [\"cancel\" to try other command]: ")
+			if input == "cancel" {
+				fmt.Println("Canceled")
+				return
+			}
 			inputs = strings.Split(input, ",")
 			if len(inputs) != 3 {
 				fmt.Println("Invalid data. Please, try again")
@@ -218,4 +247,34 @@ func validateGame(args ...string) {
 func solveGame(args ...string) {
 	game.Current.Solve()
 	CallCmd("p")
+}
+
+func setRow(args ...string) {
+	var row int
+	var data [9]int
+	var err error
+	if len(args) != 10 {
+		var rowStr string
+		rowStr, args = readInput("Type the values with the following format. <row> <data separated by comma>")
+
+		args = append([]string{rowStr}, args...)
+	}
+
+	row, err = strconv.Atoi(args[0])
+	if err != nil {
+		fmt.Println("The value for the row is invalid. Should be a integer between 1 and 9")
+		setRow()
+		return
+	}
+
+	array, err := utils.ParseStringArrayToIntArray(args[1:])
+	if err != nil {
+		fmt.Println("The data to set in the error is not valid. Should be a integer between 1 and 9")
+		setRow()
+		return
+	}
+
+	copy(data[:], array[:9])
+
+	game.Current.SetDataRow(row-1, data)
 }
