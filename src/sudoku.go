@@ -1,6 +1,7 @@
 package sudoku
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -22,17 +23,21 @@ func NewGame(level ComplexityLevel) *Game {
 		Level: level,
 	}
 
-	b := *g.Board
-	for !g.CanBeSolved() {
-		g.Board = initGame(level)
-		b = *g.Board
+	if level != EmptyLevel {
+		b := *g.Board
+		for !g.CanBeSolved() {
+			g.Board = initGame(level)
+			b = *g.Board
+		}
+		g.Board = &b
 	}
-	g.Board = &b
 
+	g.lockInitialCoordinates()
 	return g
 }
 
-func (g *Game) isSolved() bool {
+//IsSolved returns true if the board doesn't have empty fields
+func (g *Game) IsSolved() bool {
 	for x := 0; x < 9; x++ {
 		for y := 0; y < 9; y++ {
 			if g.IsEmpty(x, y) {
@@ -41,6 +46,18 @@ func (g *Game) isSolved() bool {
 		}
 	}
 	return true
+}
+
+func (g *Game) lockInitialCoordinates() {
+	for x := 0; x < 9; x++ {
+		for y := 0; y < 9; y++ {
+			if g.IsEmpty(x, y) {
+				continue
+			}
+
+			g.LockCoordinateXY(x, y)
+		}
+	}
 }
 
 //Solve solves the current board
@@ -55,7 +72,7 @@ func (g *Game) Solve() {
 				if g.IsValid(x, y, n) {
 					g.Set(x, y, n)
 					g.Solve()
-					if !g.isSolved() {
+					if !g.IsSolved() {
 						g.Set(x, y, 0)
 					}
 				}
@@ -156,8 +173,20 @@ func (g *Game) LockCoordinate(c *Coordinate) {
 	g.LockedCoord = append(g.LockedCoord, c)
 }
 
+//CanBeSolved returns true if the board can be solved
 func (g *Game) CanBeSolved() bool {
 	g.Solve()
 
-	return g.isSolved()
+	return g.IsSolved()
+}
+
+//SetDataRow sets the data to the specified row when the game is Empty
+func (g *Game) SetDataRow(row int, data [9]int) error {
+	if g.Level != EmptyLevel {
+		return fmt.Errorf("This game cannot be modified")
+	}
+
+	g.Board[row] = data
+
+	return nil
 }
