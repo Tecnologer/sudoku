@@ -1,5 +1,5 @@
 binName=sudoku-cli
-formatVersion=+.%Y%m
+formatVersion=+.%y%m%d
 version=`git describe --tags`
 
 local:
