@@ -1,12 +1,26 @@
 package sudoku
 
-import "strings"
+import (
+	"bytes"
+	"encoding/json"
+	"strings"
+)
 
 //ComplexityLevel enum of complex game
 type ComplexityLevel byte
 
 var (
 	complexityLevelToString = [...]string{"Invalid", "Easy", "Basic", "Medium", "Hard", "Master", "Empty", "Test"}
+	complexityLevelToID     = map[string]ComplexityLevel{
+		"Invalid": InvalidLevel,
+		"Easy":    EasyLevel,
+		"Basic":   BasicLevel,
+		"Medium":  MediumLevel,
+		"Hard":    HardLevel,
+		"Master":  MasterLevel,
+		"Empty":   EmptyLevel,
+		"Test":    TestLevel,
+	}
 )
 
 //GetComplexities returns the list of difficulties
@@ -91,4 +105,24 @@ func buildComplexity(level ComplexityLevel) *complexity {
 
 func squareIndexLimit(i int) (int, int) {
 	return ((i / 3) * 3) + 2, ((i % 3) * 3) + 2
+}
+
+// MarshalJSON marshals the enum as a quoted json string
+func (l ComplexityLevel) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(complexityLevelToString[l])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmashals a quoted json string to the enum value
+func (l *ComplexityLevel) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'Created' in this case.
+	*l = complexityLevelToID[j]
+	return nil
 }

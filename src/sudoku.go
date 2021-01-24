@@ -8,11 +8,11 @@ import (
 
 //Game struct
 type Game struct {
-	Board       *board
-	Level       ComplexityLevel
-	StartTime   time.Time
+	Board       *board          `json:"board"`
+	Level       ComplexityLevel `json:"level"`
+	StartTime   time.Time       `json:"start_time"`
+	LockedCoord []*Coordinate   `json:"locked_coordinates"`
 	complexity  *complexity
-	LockedCoord []*Coordinate
 	mutex       sync.Mutex
 }
 

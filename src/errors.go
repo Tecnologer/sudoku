@@ -2,8 +2,8 @@ package sudoku
 
 //ValidationErrors is map with the errors
 type ValidationErrors struct {
-	Errs  map[errorType][]*ErrorCoordinate
-	Count int
+	Errs  map[errorType][]*ErrorCoordinate `json:"errors"`
+	Count int                              `json:"count"`
 }
 
 type errorType string
