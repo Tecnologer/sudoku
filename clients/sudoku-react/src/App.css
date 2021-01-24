@@ -48,19 +48,50 @@
 }
 
 .coordinate {
-  border: 1px solid black;
+  border-top: 1px solid black;
+
   width: 30px;
   height: 30px;
   background: transparent;
   text-align: center;
   vertical-align: middle;
   display: table-cell;
+  font-weight: bold;
+}
+
+.coordinate-start {
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+}
+
+.coordinate-end {
+  border-top: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+}
+
+.coordinate-middle {
+  border-left: 1px solid black;
+}
+
+.coordinate-end-row {
+  border-bottom: 1px solid black;
+}
+
+.coordinate-bolder-row {
+  border-bottom: 2px solid black;
+}
+
+.coordinate-bolder-column {
+  border-right: 2px solid black;
 }
 
 .coordinate-editable {
   width: 100%;
-  padding: 5px;
+  /* padding: 5px; */
   margin: 0;
+  text-align: center;
+  font-size: 16px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -o-box-sizing: border-box;
