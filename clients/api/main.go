@@ -24,6 +24,6 @@ func main() {
 	host := fmt.Sprintf(":%d", *port)
 
 	r := router.Router()
-	logrus.Infof("Starting server on %s...\n", host)
+	logrus.Infof("Starting server on %s...", host)
 	logrus.Fatal(http.ListenAndServe(host, r))
 }
