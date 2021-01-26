@@ -1,0 +1,12 @@
+[submodule "sudoku-lib"]
+	path = sudoku-lib
+	url = git@github.com:Tecnologer/sudoku-lib.git
+[submodule "clients/sudoku-cli"]
+	path = clients/sudoku-cli
+	url = git@github.com:Tecnologer/sudoku-cli.git
+[submodule "clients/sudoku-api"]
+	path = clients/sudoku-api
+	url = git@github.com:Tecnologer/sudoku-api.git
+[submodule "clients/sudoku-react"]
+	path = clients/sudoku-react
+	url = git@github.com:Tecnologer/sudoku-react.git
