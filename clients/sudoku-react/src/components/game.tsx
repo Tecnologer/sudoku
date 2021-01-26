@@ -1,6 +1,8 @@
-import * as React from "react";
 import "../App.css";
+import * as React from "react";
 import Board from "./board";
+import { ICoordinate } from "../models/iCoordinate";
+
 export interface GameProps {}
 
 export interface GameState {}
@@ -8,7 +10,7 @@ export interface GameState {}
 class Game extends React.Component<GameProps, GameState> {
   state = {};
   render() {
-    let content = this.getContent();
+    let content = this.parseContentToCoordinates(this.getContent());
     return (
       <div className="game">
         <Board content={content} />
@@ -29,6 +31,23 @@ class Game extends React.Component<GameProps, GameState> {
       ["5", "3", "", "", "", "6", "", "", "2"],
     ];
     return board;
+  };
+
+  parseContentToCoordinates = (content: string[][]) => {
+    let coordinates: ICoordinate[][] = [];
+    content.forEach((row, x) => {
+      coordinates[x] = [];
+      row.forEach((col, y) => {
+        coordinates[x][y] = {
+          x: x,
+          y: y,
+          val: col,
+          isLocked: col !== "" && col !== "0",
+        };
+      });
+    });
+
+    return coordinates;
   };
 }
 
