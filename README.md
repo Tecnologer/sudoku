@@ -6,11 +6,11 @@ Sudoku game with different UI
 
 ### WIP
 
-- [CLI](./clients/cli)
+- [CLI](./clients/sudoku-cli)
+- [Web](./clients/sudoku-react)
 
 ### ToDo
 
-- Web
 - Electron
 - TUI
 - Mobile
