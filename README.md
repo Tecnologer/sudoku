@@ -6,8 +6,8 @@ Sudoku game with different UI
 
 ### WIP
 
-- [CLI](./clients/sudoku-cli)
-- [Web](./clients/sudoku-react)
+- [CLI](https://github.com/Tecnologer/sudoku-cli)
+- [Web](https://github.com/Tecnologer/sudoku-react)
 
 ### ToDo
 
